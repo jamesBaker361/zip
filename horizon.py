@@ -6,7 +6,7 @@ import argparse
 import os
 import json
 import time
-from evaluation import get_metrics_geometrically
+from evaluation import get_metrics_geometrically,get_metrics_efficiently
 
 parser=argparse.ArgumentParser()
 
@@ -98,9 +98,9 @@ def get_left_right(image:Image.Image,rows:int,step:int,use_centroids:bool,kernel
 if __name__=="__main__":
     args=parser.parse_args()
     print(args)
-    precision_list=[]
-    recall_list=[]
-    f1_list=[]
+    left_list=[]
+    right_list=[]
+    total_list=[]
     time_list=[]
     with open(os.path.join(args.src_dir, "ground_truth.json"),"r") as file:
         ground_truth=json.load(file)
@@ -118,21 +118,22 @@ if __name__=="__main__":
                 line_image.save(os.path.join(args.output_dir,f))
                 true_left=ground_truth[f]["left"]
                 true_right=ground_truth[f]["right"]
-                [precision,recall, f1]=get_metrics_geometrically(true_left,true_right,left,right)
+                [left_dist,right_dist]=get_metrics_efficiently(true_left,true_right,left,right)
+                total=left_dist+right_dist
 
                 if args.verbose:
                     print(f"\t file: {f}")
-                    print(f"\t precision {precision}")
-                    print(f"\t recall: {recall}")
-                    print(f"\t f1: {f1}")
+                    print(f"\t left: {left_dist}")
+                    print(f"\t right: {right_dist}")
+                    print(f"\t total: {total}")
                     print(f"\t time {elapsed}")
                 
-                precision_list.append(precision)
-                recall_list.append(recall)
-                f1_list.append(f1_list)
+                left_list.append(left_dist)
+                right_list.append(right_dist)
+                total_list.append(total)
                 time_list.append(elapsed)
     
-    print("precision ",np.average(precision_list))
-    print("recall",np.average(recall_list))
-    print("f1",np.average(f1_list))
+    print("left ",np.average(left_list))
+    print("right",np.average(right_list))
+    print("total",np.average(total_list))
     print("time", np.average(time_list))
