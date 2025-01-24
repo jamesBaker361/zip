@@ -24,9 +24,10 @@ def draw_line_on_image(src_image:Image.Image, left:list[int], right:list[int])->
 
 def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],radius:int=2,color_list:list=None)->Image.Image:
     """
+    returns the image with dots drawn at all the dot positions in the dot position list
 
     Args:
-        src_image (Image.Image): _description_
+        src_image (Image.Image): the source image
 
     Returns:
         Image.Image: _description_
@@ -43,15 +44,6 @@ def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],ra
             draw.circle(xy,radius,fill=c)
 
     return final_image
-
-'''def draw_filter_on_image(src_image:Image.Image,dot_position_list:list[tuple],color_list:list)->Image.Image:
-
-    final_image=src_image.convert("RBGA")
-    for xy,c in zip(dot_position_list, color_list):
-        pixels=final_image.load()
-        pixels[*xy]=c
-
-    return final_image'''
 
 
 def draw_overlap_on_image(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int],img_width:int=1920)-> Image.Image:
