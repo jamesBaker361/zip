@@ -23,14 +23,6 @@ def get_error(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int],
     left_dist=abs(true_left[1]-pred_left[1])
     right_dist=abs(true_right[1]-pred_right[1])
     return [left_dist,right_dist]
-
-def get_image_with_dots(image:Image.Image,rows:int,step:int,use_centroids:bool)->Image.Image:
-
-    dot_position_list=get_class_based_dot_list(image,rows,step,use_centroids)
-    dot_position_list=filter_list(image,dot_position_list)
-    color_list=[(255,0,0) for _ in dot_position_list]
-    final_image=draw_points_on_image(image,dot_position_list,radius=step,color_list=color_list)
-    return final_image
     
 
 def get_class_based_dot_list(image:Image.Image,rows:int,step:int,use_centroids:bool):
