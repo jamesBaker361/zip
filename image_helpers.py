@@ -3,15 +3,20 @@ import numpy as np
 
 def draw_line_on_image(src_image:Image.Image, left:list[int], right:list[int])->Image.Image:
     """
-    Given an image and two [u,v] coordinates, returns a black and white version of the image
-    with a red line connecting the two coordinates
-    Args
-        src_image (Image.Image)
-        left (list[int]) len==2 u,v coordinate of left point of line, 
-        right (list[int]) len==2 u,v coordinate of right point of line, 
+    Draws a red line connecting two points on an image and converts the image 
+    to a black-and-white version with RGB color channels.
 
-    Returns
-        final_image (Image.Image)
+    Args:
+        src_image (Image.Image): 
+            The input image on which the line will be drawn. 
+        left (list[int]): 
+            A list of two integers [u, v] the starting point of the line.
+        right (list[int]): 
+            A list of two integers [u, v] the ending point of the line.
+
+    Returns:
+        Image.Image: 
+            A new image with the red line drawn between the two specified points.
     """
 
     final_image=src_image.convert("L").convert("RGB")
@@ -24,13 +29,23 @@ def draw_line_on_image(src_image:Image.Image, left:list[int], right:list[int])->
 
 def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],radius:int=2,color_list:list=None)->Image.Image:
     """
-    returns the image with dots drawn at all the dot positions in the dot position list
+    Draws dots on an image at specified positions, optionally using different colors for each dot.
 
     Args:
-        src_image (Image.Image): the source image
+        src_image (Image.Image): 
+            The input image on which the dots will be drawn. 
+        dot_position_list (list[tuple[int, int]]): 
+            A list of tuples, where each tuple contains two integers [u, v] representing 
+            the coordinates of each dot to be drawn.
+        radius (int, optional): 
+            The radius of the dots. Defaults to 2.
+        color_list (list[tuple[int, int, int]], optional): 
+            A list of RGB tuples specifying the color of each dot. 
+            If `None`, all dots will be red. Defaults to `None`.
 
     Returns:
-        Image.Image: _description_
+        Image.Image: 
+            A new image with dots drawn at the specified positions.
     """
     final_image=src_image
     red=(255,0,0)
