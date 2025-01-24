@@ -17,7 +17,7 @@ def get_metrics_geometrically(true_left:tuple[int], true_right:tuple[int], pred_
     true_quad=geometry.Polygon([(0,0), (0,img_width),true_left,true_right])
     pred_quad=geometry.Polygon([(0,0),(0,img_width),pred_left,pred_right])
 
-    intersection=true_quad.intersection(pred_quad)
+    intersection=true_quad.intersection(pred_quad).area
     
     precision=intersection/pred_quad.area
     recall=intersection/true_quad.area
