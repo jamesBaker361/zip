@@ -3,7 +3,8 @@ from image_helpers import draw_points_on_image
 from PIL import Image
 import sys
 def kernel_difference(x:int,y:int,kernel_width:int,kernel_height:int,image_array:np.ndarray)->float:
-    """_summary_
+    """kiven a kernel (kernel_height x kernel_width matrix), the difference is equivalent to the difference between
+    the vector representationof the pixels in the top half of the matrix vs the bottom half
 
     Args:
         u (int): _description_
@@ -25,12 +26,12 @@ def kernel_difference(x:int,y:int,kernel_width:int,kernel_height:int,image_array
     return difference
 
 
-def get_differences_heatmap(image:Image.Image,kernel_width:int,kernel_height:int,step:int=1)->Image.Image:
+def get_differences_heatmap(image:Image.Image,kernel_width:int,kernel_height:int,step:int=1,mode="RGB")->Image.Image:
 
     minimum_difference=sys.maxsize
     maximum_difference=0
 
-    image_array=np.array(image)
+    image_array=np.array(image.convert(mode))
     
     mod_y=image_array.shape[0]-kernel_height
     mod_x=image_array.shape[1]-kernel_width
@@ -38,6 +39,7 @@ def get_differences_heatmap(image:Image.Image,kernel_width:int,kernel_height:int
     for x in range(mod_x):
         for y in range(kernel_height,mod_y):
             difference=kernel_difference(x,y,kernel_width,kernel_height,image_array)
+            difference=difference**2
             minimum_difference=min(minimum_difference,difference)
             maximum_difference=max(maximum_difference,difference)
             difference_array[y][x]=difference
@@ -57,8 +59,12 @@ def get_differences_heatmap(image:Image.Image,kernel_width:int,kernel_height:int
     return final_image
     
 if __name__=="__main__":
+
+    args=sys.argv[1:]
+    print(args)
     
-    for x in range(5,30,5):
-        src_image=Image.open("input_1/frame0001.jpg")
-        final_image=get_differences_heatmap(src_image,x,x,x)
-        final_image.save(f"dots_{x}.png")
+    x=int(sys.argv[1])
+    mode=sys.argv[2]
+    src_image=Image.open("input_1/frame0001.jpg")
+    final_image=get_differences_heatmap(src_image,x,x,x,mode)
+    final_image.save(f"dots_{x}_{mode}.png")
