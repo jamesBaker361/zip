@@ -1,5 +1,6 @@
 from shapely import geometry
 
+
 def get_metrics_geometrically(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int],img_width:int=1920)->list[int]:
     """_summary_
 
@@ -26,3 +27,7 @@ def get_metrics_geometrically(true_left:tuple[int], true_right:tuple[int], pred_
 
     return [precision,recall, f1]
 
+def get_metrics_efficiently(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int])->list[float]:
+    left_dist=abs(true_left[1]-pred_left[1])
+    right_dist=abs(true_right[1]-pred_right[1])
+    return [left_dist,right_dist]
