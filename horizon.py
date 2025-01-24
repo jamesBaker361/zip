@@ -20,19 +20,76 @@ parser.add_argument("--verbose",action="store_true")
 
 
 def get_error(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int])->list[float]:
+    """
+    Calculates the vertical (y-coordinate) error between the true and predicted 
+    coordinates of two points: left and right.
+
+    Args:
+        true_left (tuple[int, int]): 
+            The true coordinates of the left point as a tuple `(u, v)
+        true_right (tuple[int, int]): 
+            The true coordinates of the right point as a tuple `(u, v)`,
+        pred_left (tuple[int, int]): 
+            The predicted coordinates of the left point as a tuple `(u, v)`.
+        pred_right (tuple[int, int]): 
+            The predicted coordinates of the right point as a tuple `(u, v)`.
+
+    Returns:
+        list[float]: 
+            A list containing two floats:
+            - The vertical error for the left point.
+            - The vertical error for the right point.
+    """
     left_dist=abs(true_left[1]-pred_left[1])
     right_dist=abs(true_right[1]-pred_right[1])
     return [left_dist,right_dist]
     
 
-def get_class_based_dot_list(image:Image.Image,rows:int,step:int,use_centroids:bool):
+def get_class_based_dot_list(image:Image.Image,n_rows:int,step:int,use_centroids:bool):
+    """
+    Classifies pixels in an image as either "sky" or "land" based on their color 
+    similarity to representative rows of pixels. Identifies transition points 
+    between "sky" and "land" and returns their positions. 
+    The sky_pixels/land_pixels are created by taking (1/step) of all the pixels
+    in the first/last n_rows. The centroid for each class is then calculated by averaging
+    all of the pixel color values in RGB space in the representative class. For each unclassified pixel,
+     If `use_centroids` is `True`, we classify it as belonging to the class whos centroid 
+     is a lesser distance from the unclassified pixel. If `use_centroids` is `False`, we find
+     the minimum distance between the unclassified pixel values in RGB space and the values in RGB space 
+     of each pixel in sky_pixels/land_pixels. Whichever class has the closest minimum distance,
+     we assign to the unclassified pixel
+
+    If `use_centroids` is `True`, . If `False`, a more computationally 
+    expensive comparison to individual pixels is performed.
+
+    Args:
+        image (Image.Image): 
+            The input image to process
+        n_rows (int): 
+            The number of rows from the top and bottom of the image used 
+            to define "sky" and "land" classes, respectively.
+        step (int): 
+            The step size for sampling pixels from the rows to compute 
+            centroids or compare individual pixels.
+        use_centroids (bool): 
+            If `True`, uses the average (centroid) color of the sampled 
+            rows to classify pixels. If `False`, compares each pixel 
+            to all sampled pixels individually.
+
+    Returns:
+        list[list[int]]: 
+            A list of `[x, y]` coordinates representing the positions of 
+            transition points where "land" pixels are detected directly 
+            below "sky" pixels in the image.
+
+    """
     image_array=np.array(image)
-    sky_rows=np.array([row[0::step] for row in image_array[:rows]])
+    sky_pixels=np.array([row[0::step] for row in image_array[:n_rows]])
     
-    sky_centroid=np.average(sky_rows,axis=(0,1))
+    sky_centroid=np.average(sky_pixels,axis=(0,1))
     
-    land_rows=np.array([row[0::step] for row in image_array[-rows:]])
-    land_centroid=np.average(land_rows,axis=(0,1))
+    land_pixels=np.array([row[0::step] for row in image_array[-n_rows:]])
+    land_centroid=np.average(land_pixels,axis=(0,1))
     SKY_CLASS=1
     LAND_CLASS=2
     height,width,_=image_array.shape
@@ -47,9 +104,9 @@ def get_class_based_dot_list(image:Image.Image,rows:int,step:int,use_centroids:b
             else:
                 sky_distance=sys.maxsize
                 land_distance=sys.maxsize
-                for sky_pixel in sky_rows:
+                for sky_pixel in sky_pixels:
                     sky_distance=min(sky_distance, np.linalg.norm(pixel-sky_pixel))
-                for land_pixel in land_rows:
+                for land_pixel in land_pixels:
                     land_distance=min(land_distance, np.linalg.norm(pixel-land_pixel))
             if land_distance<sky_distance:
                 pixel_class=LAND_CLASS
@@ -62,6 +119,31 @@ def get_class_based_dot_list(image:Image.Image,rows:int,step:int,use_centroids:b
     return dot_position_list
 
 def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int)->list:
+    """
+    Filters a list of dot positions by applying a kernel-based density check. 
+    The dots represent predicted transition points between land and sky
+    Retains only dots surrounded by a sufficient amount of dots within a specified kernel size.
+    A dot is kept if the number of neighboring dots within the kernel 
+    region exceeds `1 + 2 * kernel_size`. If the kernel exceeds the boundaries of the image,
+    we assume that there would not be a neighboring dot in the locations that
+    exceed the boundary. 
+
+    Args:
+        image (Image.Image): 
+            The input image. 
+        dot_position_list (list[list[int]]): 
+            A list of `[x, y]` coordinates representing dot positions 
+            on the image.
+        kernel_size (int): 
+            The size of the kernel used for density filtering. The kernel 
+            defines the neighborhood around each dot for checking the 
+            presence of other dots.
+
+    Returns:
+        list[list[int]]: 
+            A filtered list of `[x, y]` coordinates
+
+    """
     width,height=image.size
     class_array=np.zeros((height,width))
     for [x,y] in dot_position_list:
@@ -82,9 +164,35 @@ def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int)->list:
             final_dot_position_list.append([x,y])
     return final_dot_position_list
 
-def get_left_right(image:Image.Image,rows:int,step:int,use_centroids:bool,kernel_size:int):
+def get_left_right(image:Image.Image,rows:int,step:int,use_centroids:bool,kernel_size:int)->tuple[list[float], list[float]]:
+    """
+    Calculates the left and right endpoints of a line that defines the horizon of an image.
+
+    Args:
+        image (Image.Image): 
+            The input image.
+        rows (int): 
+            The number of rows from the top and bottom of the image used 
+            to define "sky" and "land" classes during dot detection.
+        step (int): 
+            The step size for sampling pixels during the classification process.
+            We only sample (1/step) of the pixels in the sky_pixels and land_pixels
+        use_centroids (bool): 
+            If `True`, uses centroid-based classification of "sky" and "land" 
+            pixels; if `False`, compares individual pixels. The former is
+            faster
+        kernel_size (int): 
+            The size of the kernel used to filter transition points based 
+            on density.
+
+    Returns:
+        tuple[list[float], list[float]]: 
+            A tuple containing the left and right endpoints of the best-fit line:
+            - `left`: `[x, y]` coordinates for the leftmost point (at x = 0).
+            - `right`: `[x, y]` coordinates for the rightmost point (at x = image width).
+    """
     width,height=image.size
-    dot_position_list=get_class_based_dot_list(image,rows=rows,step=step,use_centroids=use_centroids)
+    dot_position_list=get_class_based_dot_list(image,n_rows=rows,step=step,use_centroids=use_centroids)
     dot_position_list=filter_list(image,dot_position_list,kernel_size=kernel_size)
     slope, intercept =np.polyfit([dot[0] for dot in dot_position_list], [dot[1] for dot in dot_position_list], 1)
     left=[0,intercept]
