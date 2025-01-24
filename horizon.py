@@ -6,7 +6,6 @@ import argparse
 import os
 import json
 import time
-from evaluation import get_metrics_geometrically,get_metrics_efficiently
 
 parser=argparse.ArgumentParser()
 
@@ -19,6 +18,11 @@ parser.add_argument("--use_centroids",action="store_true")
 parser.add_argument("--kernel_size",type=int,default=3)
 parser.add_argument("--verbose",action="store_true")
 
+
+def get_error(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int])->list[float]:
+    left_dist=abs(true_left[1]-pred_left[1])
+    right_dist=abs(true_right[1]-pred_right[1])
+    return [left_dist,right_dist]
 
 def get_image_with_dots(image:Image.Image,rows:int,step:int,use_centroids:bool)->Image.Image:
 
@@ -118,7 +122,7 @@ if __name__=="__main__":
                 line_image.save(os.path.join(args.output_dir,f))
                 true_left=ground_truth[f]["left"]
                 true_right=ground_truth[f]["right"]
-                [left_dist,right_dist]=get_metrics_efficiently(true_left,true_right,left,right)
+                [left_dist,right_dist]=get_error(true_left,true_right,left,right)
                 total=left_dist+right_dist
 
                 if args.verbose:
