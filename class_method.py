@@ -1,7 +1,8 @@
 import numpy as np
-from image_helpers import draw_points_on_image
+from image_helpers import draw_points_on_image,draw_line_on_image
 from PIL import Image
 import sys
+
 
 def get_class_based_heatmap(image:Image.Image,rows:int=1,step:int=4,use_centroids:bool=False)->Image.Image:
 
@@ -71,7 +72,18 @@ def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int=3)->lis
                     final_dot_position_list.append([x,y])
     return final_dot_position_list
 
+def get_left_right(image:Image.Image,rows:int,step:int,use_centroids:bool,kernel_size:int):
+    width,height=image.size
+    dot_position_list=get_class_based_dot_list(image,rows=rows,step=step,use_centroids=use_centroids)
+    dot_position_list=filter_list(image,dot_position_list,kernel_size=kernel_size)
+    slope, intercept =np.polyfit([dot[0] for dot in dot_position_list], [dot[1] for dot in dot_position_list], 1)
+    left=[0,intercept]
+    right=[width, intercept+slope*width]
+    return left,right
+
+
 if __name__=="__main__":
     src_image=Image.open("input_1/frame0001.jpg")
-    final_image=get_class_based_heatmap(src_image,1,4,True)
-    final_image.save("class_dots.png")
+    left,right=get_left_right(src_image,1,4,True,3)
+    final_image=draw_line_on_image(src_image,left,right)
+    final_image.save("class_dots_line.png")
