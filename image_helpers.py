@@ -22,7 +22,7 @@ def draw_line_on_image(src_image:Image.Image, left:list[int], right:list[int])->
 
     return final_image
 
-def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],radius:int=2)->Image.Image:
+def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],radius:int=2,color_list:list=None)->Image.Image:
     """
 
     Args:
@@ -31,17 +31,55 @@ def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],ra
     Returns:
         Image.Image: _description_
     """
-    draw=ImageDraw.Draw(src_image)
+    final_image=src_image
     red=(255,0,0)
-    for xy in dot_position_list:
-        draw.circle(xy,radius,fill=red)
+    draw=ImageDraw.Draw(final_image)
+    if color_list is None:
+        for xy in dot_position_list:
+            draw.circle(xy,radius,fill=red)
+    else:
+        for c,xy in zip(dot_position_list,color_list):
+            draw.circle(xy,radius,fill=c)
 
-    return src_image
+    return final_image
+
+'''def draw_filter_on_image(src_image:Image.Image,dot_position_list:list[tuple],color_list:list)->Image.Image:
+
+    final_image=src_image.convert("RBGA")
+    for xy,c in zip(dot_position_list, color_list):
+        pixels=final_image.load()
+        pixels[*xy]=c
+
+    return final_image'''
+
+
+def draw_overlap_on_image(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int],img_width:int=1920)-> Image.Image:
+    """
+    
+
+
+    Args:
+        true_left (tuple[int]): _description_
+        true_right (tuple[int]): _description_
+        pred_left (tuple[int]): _description_
+        pred_right (tuple[int]): _description_
+        img_width (int, optional): _description_. Defaults to 1920.
+
+    Returns:
+        Image.Image: _description_
+    """
+    return
+
+
 
 if __name__=="__main__":
     src_image=Image.open("input_1/frame0001.jpg")
     left=[0,408]
     center=[950, 350]
     right=[1919,286]
-    final_image=draw_points_on_image(src_image,[left,right,center])
-    final_image.save("final.jpg")
+    points=[]
+    colors=[]
+    for x in range(100):
+        for y in range(100):
+            points.append([x,y])
+            colors.append((255,0,0,128))
