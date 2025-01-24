@@ -75,13 +75,13 @@ def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int)->list:
         count=0
         for dy in d_spacing:
             for dx in d_spacing:
-                
-                if class_array[y+dy][x+dx]==1:
-                    #print("\t",y+dy,x+dx,class_array[y+dy][x+dx])
-                    count+=1
+                if y+dy>=0 and y+dy<height and x+dx>=0 and x+dx<width: #handle edge case
+                    if class_array[y+dy][x+dx]==1:
+                        #print("\t",y+dy,x+dx,class_array[y+dy][x+dx])
+                        count+=1
         
         if count>1+2*kernel_size:
-            print(y,x,count)
+            #print(y,x,count)
             final_dot_position_list.append([x,y])
     return final_dot_position_list
 
@@ -103,6 +103,7 @@ if __name__=="__main__":
     time_list=[]
     with open(os.path.join(args.src_dir, "ground_truth.json"),"r") as file:
         ground_truth=json.load(file)
+    os.makedirs(args.output_dir,exist_ok=True)
     for f in os.listdir(args.src_dir):
         if f.endswith(('.jpg', '.png')):
             if args.limit>=0:
@@ -111,9 +112,12 @@ if __name__=="__main__":
                 start=time.time()
                 left,right=get_left_right(src_image,args.rows,args.step,args.use_centroids,args.kernel_size)
                 end=time.time()
+                line_image=draw_line_on_image(src_image,left,right)
+                line_image.save(os.path.join(args.output_dir,f))
                 true_left=ground_truth[f]["left"]
                 true_right=ground_truth[f]["right"]
                 [precision,recall, f1]=get_metrics_geometrically(true_left,true_right,left,right)
+                
                 precision_list.append(precision)
                 recall_list.append(recall)
                 f1_list.append(f1_list)
