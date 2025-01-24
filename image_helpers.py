@@ -38,7 +38,8 @@ def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],ra
         for xy in dot_position_list:
             draw.circle(xy,radius,fill=red)
     else:
-        for c,xy in zip(dot_position_list,color_list):
+        for c,xy in zip(color_list,dot_position_list):
+            #print(c)
             draw.circle(xy,radius,fill=c)
 
     return final_image
