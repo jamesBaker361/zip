@@ -46,24 +46,6 @@ def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],ra
     return final_image
 
 
-def draw_overlap_on_image(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int],img_width:int=1920)-> Image.Image:
-    """
-    
-
-
-    Args:
-        true_left (tuple[int]): _description_
-        true_right (tuple[int]): _description_
-        pred_left (tuple[int]): _description_
-        pred_right (tuple[int]): _description_
-        img_width (int, optional): _description_. Defaults to 1920.
-
-    Returns:
-        Image.Image: _description_
-    """
-    return
-
-
 
 if __name__=="__main__":
     src_image=Image.open("input_1/frame0001.jpg")
