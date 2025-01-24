@@ -17,6 +17,7 @@ parser.add_argument("--rows",type=int,default=1)
 parser.add_argument("--step",type=int,default=4)
 parser.add_argument("--use_centroids",action="store_true")
 parser.add_argument("--kernel_size",type=int,default=3)
+parser.add_argument("--verbose",action="store_true")
 
 
 def get_image_with_dots(image:Image.Image,rows:int,step:int,use_centroids:bool)->Image.Image:
@@ -112,16 +113,24 @@ if __name__=="__main__":
                 start=time.time()
                 left,right=get_left_right(src_image,args.rows,args.step,args.use_centroids,args.kernel_size)
                 end=time.time()
+                elapsed=end-start
                 line_image=draw_line_on_image(src_image,left,right)
                 line_image.save(os.path.join(args.output_dir,f))
                 true_left=ground_truth[f]["left"]
                 true_right=ground_truth[f]["right"]
                 [precision,recall, f1]=get_metrics_geometrically(true_left,true_right,left,right)
+
+                if args.verbose:
+                    print(f"\t file: {f}")
+                    print(f"\t precision {precision}")
+                    print(f"\t recall: {recall}")
+                    print(f"\t f1: {f1}")
+                    print(f"\t time {elapsed}")
                 
                 precision_list.append(precision)
                 recall_list.append(recall)
                 f1_list.append(f1_list)
-                time_list.append(end-start)
+                time_list.append(elapsed)
     
     print("precision ",np.average(precision_list))
     print("recall",np.average(recall_list))
