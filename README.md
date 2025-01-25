@@ -12,12 +12,17 @@ Intermediate pixels are then classified based on their similarity to the land/sk
 We then find all the transition pixels that are land but border a sky pixel. FOr each x value, where there 
 are multiple y values that match, i.e. we have `[x,y_0], [x,y_1]...` we retain only the minimum `y_n`,
  With the remaining pixels x,y locations, we perform linear regression to determine the line of best fit.
+ We then create a black and white copy of the original image and draw the line of best fit on it and save it to the output_dir
 
 # How To Use:
 The main file `horizon.py` can be run as so:
 `python horizon.py --src_dir /path/to/images/ --output_dir /path/to/output  --use_centroids`
 
-However, it can also be run with some clargs: 
+It can also be run with some clargs: 
+
+`--src_dir` : path to input image directory
+
+`--output_dir` : directory where generated images will be stored
 
 `--limit` : limit of how many images to process
 
