@@ -45,20 +45,34 @@ We add those two values, and that is our loss, to be minimized. It is measured i
 
 # Results
 Using `n_rows=5`, `step=4` and `--use_verbose=True`, we evaluated both the input1 and input2 directories 
-## For input_dir1:
-Average absolute value pixel distance:
+## For input_1:
+Visual Results are in `output_1`
+
+ Average absolute value pixel distance:
+
 `left  30.145847652409053`
+
 `right 8.348775074546932`
+
 `total 38.49462272695599`
+
 Average time per image (in seconds)
+
 `time 22.18755831559499`
 
-## For input_dir2:
+## For input_2:
+Visual Results are in `output_2`
+
 Average absolute value pixel distance:
+
 `left  52.3645577064897`
+
 `right 16.866338280209536`
+
 `total 69.23089598669922`
+
 Average time per image (in seconds)
+
 `time 15.013919939994812`
 
 
