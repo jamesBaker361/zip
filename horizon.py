@@ -118,52 +118,6 @@ def get_class_based_pixel_list(image:Image.Image,n_rows:int,step:int,use_centroi
                 pixel_position_list.append([x,y])
     return pixel_position_list
 
-def filter_list(image:Image.Image,pixel_position_list:list,kernel_size:int)->list:
-    """
-    Filters a list of pixel positions by applying a kernel-based density check. 
-    The pixels represent predicted transition points between land and sky
-    Retains only pixels surrounded by a sufficient amount of pixels within a specified kernel size.
-    A pixel is kept if the number of neighboring pixels within the kernel 
-    region exceeds `1 + 2 * kernel_size`. If the kernel exceeds the boundaries of the image,
-    we assume that there would not be a neighboring pixel in the locations that
-    exceed the boundary. 
-
-    Args:
-        image (Image.Image): 
-            The input image. 
-        pixel_position_list (list[list[int]]): 
-            A list of `[x, y]` coordinates representing pixel positions 
-            on the image.
-        kernel_size (int): 
-            The size of the kernel used for density filtering. The kernel 
-            defines the neighborhood around each pixel for checking the 
-            presence of other pixels.
-
-    Returns:
-        list[list[int]]: 
-            A filtered list of `[x, y]` coordinates
-
-    """
-    width,height=image.size
-    class_array=np.zeros((height,width))
-    for [x,y] in pixel_position_list:
-        class_array[y][x]=1
-    final_pixel_position_list=[]
-    d_spacing=[0]+[k for k in range(1,kernel_size+1)]+[-k for k in range(1,1+kernel_size)]
-    for [x,y] in pixel_position_list:
-        count=0
-        for dy in d_spacing:
-            for dx in d_spacing:
-                if y+dy>=0 and y+dy<height and x+dx>=0 and x+dx<width: #handle edge case
-                    if class_array[y+dy][x+dx]==1:
-                        #print("\t",y+dy,x+dx,class_array[y+dy][x+dx])
-                        count+=1
-        
-        if count>1+2*kernel_size:
-            #print(y,x,count)
-            final_pixel_position_list.append([x,y])
-    return final_pixel_position_list
-
 def filter_list_simple(pixel_position_list:list[list[int]])->list[list[int]]:
     """Filters  pixel positions to retain only the minimum y-coordinate 
     for each unique x-coordinate.
