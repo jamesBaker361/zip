@@ -36,5 +36,7 @@ We add those two values, and that is our loss, to be minimized
 # Expansions
 A few next steps
 > Blurring the input images: for a lot of the images in input_2, there are houses and structures that cause the predicted line to diverge far from horizon. Blurring the input image may help this, as there will be fewer below horizon points that would be the same color as the sky.
+
 > Hyperparameter Search: A more methodical, exhaustive search of all the possible values of n_rows,step and kernel_size would be worthwhile
+
 > Geometric Evaluation: given left,right coordinates, we can construct a polygon with points (0,0), (0,image_width),(x_left,y_left), (x_right,y_right), if we have a polygon for both our actual left/right coordinates and predicted, we can find their area of overlap/precision/recall and use that as a metric
