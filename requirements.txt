@@ -1,0 +1,8 @@
+mkl-service==2.4.0
+mkl_fft @ file:///io/mkl313/mkl_fft_1730824109137/work
+mkl_random @ file:///io/mkl313/mkl_random_1730823916628/work
+numpy @ file:///croot/numpy_and_numpy_base_1708638617955/work/dist/numpy-1.26.4-cp312-cp312-linux_x86_64.whl#sha256=1d700f51d8b4fa684d858c9e3b56b1656bc5c82b6b79ff08d4e3b491c430059f
+pillow @ file:///croot/pillow_1734430590456/work
+setuptools==75.1.0
+shapely @ file:///croot/shapely_1734445883981/work
+wheel==0.44.0
