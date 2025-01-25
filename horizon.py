@@ -15,7 +15,6 @@ parser.add_argument("--limit",type=int,default=100000)
 parser.add_argument("--n_rows",type=int,default=5)
 parser.add_argument("--step",type=int,default=4)
 parser.add_argument("--use_centroids",action="store_true")
-parser.add_argument("--kernel_size",type=int,default=3)
 parser.add_argument("--verbose",action="store_true")
 
 
@@ -138,7 +137,7 @@ def filter_list_simple(pixel_position_list:list[list[int]])->list[list[int]]:
         pixel_dict[x].append(y)
     return [[k,min(v)] for k,v in pixel_dict.items()]
 
-def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool,kernel_size:int)->tuple[list[float], list[float]]:
+def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool)->tuple[list[float], list[float]]:
     """
     Calculates the left and right endpoints of a line that defines the horizon of an image.
 
@@ -155,9 +154,6 @@ def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool,kern
             If `True`, uses centroid-based classification of "sky" and "land" 
             pixels; if `False`, compares individual pixels. The former is
             faster
-        kernel_size (int): 
-            The size of the kernel used to filter transition points based 
-            on density.
 
     Returns:
         tuple[list[float], list[float]]: 
@@ -168,7 +164,6 @@ def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool,kern
     width,height=image.size
     pixel_position_list=get_class_based_pixel_list(image,n_rows=n_rows,step=step,use_centroids=use_centroids)
     pixel_position_list=filter_list_simple(pixel_position_list)
-    #pixel_position_list=filter_list(image,pixel_position_list,kernel_size=kernel_size)
     slope, intercept =np.polyfit([pixel[0] for pixel in pixel_position_list], [pixel[1] for pixel in pixel_position_list], 1)
     left=[0,intercept]
     right=[width, intercept+slope*width]
@@ -190,7 +185,7 @@ if __name__=="__main__":
                 args.limit-=1
                 src_image=Image.open(os.path.join(args.src_dir,f))
                 start=time.time()
-                left,right=get_left_right(src_image,args.n_rows,args.step,args.use_centroids,args.kernel_size)
+                left,right=get_left_right(src_image,args.n_rows,args.step,args.use_centroids)
                 end=time.time()
                 elapsed=end-start
                 line_image=draw_line_on_image(src_image,left,right)
