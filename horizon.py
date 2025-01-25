@@ -18,7 +18,7 @@ parser.add_argument("--use_centroids",action="store_true")
 parser.add_argument("--verbose",action="store_true")
 
 
-def get_error(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int], pred_right:tuple[int])->list[float]:
+def get_error(true_left:tuple[int, int], true_right:tuple[int, int], pred_left:tuple[int, int], pred_right:tuple[int, int])->list[float]:
     """
     Calculates the vertical (y-coordinate) error between the true and predicted 
     coordinates of two points: left and right.
