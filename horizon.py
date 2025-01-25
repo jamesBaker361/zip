@@ -164,6 +164,26 @@ def filter_list(image:Image.Image,pixel_position_list:list,kernel_size:int)->lis
             final_pixel_position_list.append([x,y])
     return final_pixel_position_list
 
+def filter_list_simple(pixel_position_list:list[list[int]])->list[list[int]]:
+    """Filters  pixel positions to retain only the minimum y-coordinate 
+    for each unique x-coordinate.
+
+    Args:
+        pixel_position_list (list[list[int]]): 
+            A list of pixel positions, where each position is a list `[x, y]` 
+
+    Returns:
+        list[list[int]]: 
+            A filtered list of pixel positions, where each entry corresponds 
+            to an x-coordinate and the least y-coordinate associated with it
+    """
+    pixel_dict={}
+    for [x,y] in pixel_position_list:
+        if x not in pixel_dict:
+            pixel_dict[x]=[]
+        pixel_dict[x].append(y)
+    return [[k,min(v)] for k,v in pixel_dict.items()]
+
 def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool,kernel_size:int)->tuple[list[float], list[float]]:
     """
     Calculates the left and right endpoints of a line that defines the horizon of an image.
@@ -193,7 +213,8 @@ def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool,kern
     """
     width,height=image.size
     pixel_position_list=get_class_based_pixel_list(image,n_rows=n_rows,step=step,use_centroids=use_centroids)
-    pixel_position_list=filter_list(image,pixel_position_list,kernel_size=kernel_size)
+    pixel_position_list=filter_list_simple(pixel_position_list)
+    #pixel_position_list=filter_list(image,pixel_position_list,kernel_size=kernel_size)
     slope, intercept =np.polyfit([pixel[0] for pixel in pixel_position_list], [pixel[1] for pixel in pixel_position_list], 1)
     left=[0,intercept]
     right=[width, intercept+slope*width]
