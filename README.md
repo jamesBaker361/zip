@@ -17,14 +17,19 @@ to determine the line of best fit.
 The main file `horizon.py` can be run as so:
 `python horizon.py --src_dir /path/to/images/ --output_dir /path/to/output  --use_centroids`
 
-However, it can also be run with some clargs:
+However, it can also be run with some clargs: 
+
 `--limit` : limit of how many images to process
+
 `--n_rows`: how many rows in the top/bottom to use for sky/land pixels
+
 `--step` : what fraction(1/step) of pixels in the rows to use
+
 `--kernel_size`: determines how near other transition pixels need to be when deciding whether to filter out a transition pixel or not
 
 And some boolean flags can be added as well
 `--use_centroids` : whether we use the average of the pixels in the land/sky classes or the minimum to determine distance- this flag usually is faster and more reliable
+
 `--verbose` : if true, prints out more
 
 # Evaluation
