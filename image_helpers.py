@@ -27,34 +27,34 @@ def draw_line_on_image(src_image:Image.Image, left:list[int], right:list[int])->
 
     return final_image
 
-def draw_points_on_image(src_image:Image.Image, dot_position_list:list[tuple],radius:int=2,color_list:list=None)->Image.Image:
+def draw_points_on_image(src_image:Image.Image, point_position_list:list[tuple],radius:int=2,color_list:list=None)->Image.Image:
     """
-    Draws dots on an image at specified positions, optionally using different colors for each dot.
+    Draws points on an image at specified positions, optionally using different colors for each point.
 
     Args:
         src_image (Image.Image): 
-            The input image on which the dots will be drawn. 
-        dot_position_list (list[tuple[int, int]]): 
+            The input image on which the points will be drawn. 
+        point_position_list (list[tuple[int, int]]): 
             A list of tuples, where each tuple contains two integers [u, v] representing 
-            the coordinates of each dot to be drawn.
+            the coordinates of each point to be drawn.
         radius (int, optional): 
-            The radius of the dots. Defaults to 2.
+            The radius of the points. Defaults to 2.
         color_list (list[tuple[int, int, int]], optional): 
-            A list of RGB tuples specifying the color of each dot. 
-            If `None`, all dots will be red. Defaults to `None`.
+            A list of RGB tuples specifying the color of each point. 
+            If `None`, all points will be red. Defaults to `None`.
 
     Returns:
         Image.Image: 
-            A new image with dots drawn at the specified positions.
+            A new image with points drawn at the specified positions.
     """
     final_image=src_image
     red=(255,0,0)
     draw=ImageDraw.Draw(final_image)
     if color_list is None:
-        for xy in dot_position_list:
+        for xy in point_position_list:
             draw.circle(xy,radius,fill=red)
     else:
-        for c,xy in zip(color_list,dot_position_list):
+        for c,xy in zip(color_list,point_position_list):
             #print(c)
             draw.circle(xy,radius,fill=c)
 

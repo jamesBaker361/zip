@@ -12,7 +12,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("--src_dir",type=str,default="input_1")
 parser.add_argument("--output_dir",type=str,default="output")
 parser.add_argument("--limit",type=int,default=100000)
-parser.add_argument("--rows",type=int,default=5)
+parser.add_argument("--n_rows",type=int,default=5)
 parser.add_argument("--step",type=int,default=4)
 parser.add_argument("--use_centroids",action="store_true")
 parser.add_argument("--kernel_size",type=int,default=3)
@@ -45,7 +45,7 @@ def get_error(true_left:tuple[int], true_right:tuple[int], pred_left:tuple[int],
     return [left_dist,right_dist]
     
 
-def get_class_based_dot_list(image:Image.Image,n_rows:int,step:int,use_centroids:bool):
+def get_class_based_pixel_list(image:Image.Image,n_rows:int,step:int,use_centroids:bool):
     """
     Classifies pixels in an image as either "sky" or "land" based on their color 
     similarity to representative rows of pixels. Identifies transition points 
@@ -93,7 +93,7 @@ def get_class_based_dot_list(image:Image.Image,n_rows:int,step:int,use_centroids
     SKY_CLASS=1
     LAND_CLASS=2
     height,width,_=image_array.shape
-    dot_position_list=[]
+    pixel_position_list=[]
     class_array=np.zeros((height,width))
     for y in range(1,height-1):
         for x in range(width):
@@ -115,29 +115,29 @@ def get_class_based_dot_list(image:Image.Image,n_rows:int,step:int,use_centroids
             class_array[y][x]=pixel_class
 
             if class_array[y][x]==LAND_CLASS and class_array[y-1][x]==SKY_CLASS:
-                dot_position_list.append([x,y])
-    return dot_position_list
+                pixel_position_list.append([x,y])
+    return pixel_position_list
 
-def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int)->list:
+def filter_list(image:Image.Image,pixel_position_list:list,kernel_size:int)->list:
     """
-    Filters a list of dot positions by applying a kernel-based density check. 
-    The dots represent predicted transition points between land and sky
-    Retains only dots surrounded by a sufficient amount of dots within a specified kernel size.
-    A dot is kept if the number of neighboring dots within the kernel 
+    Filters a list of pixel positions by applying a kernel-based density check. 
+    The pixels represent predicted transition points between land and sky
+    Retains only pixels surrounded by a sufficient amount of pixels within a specified kernel size.
+    A pixel is kept if the number of neighboring pixels within the kernel 
     region exceeds `1 + 2 * kernel_size`. If the kernel exceeds the boundaries of the image,
-    we assume that there would not be a neighboring dot in the locations that
+    we assume that there would not be a neighboring pixel in the locations that
     exceed the boundary. 
 
     Args:
         image (Image.Image): 
             The input image. 
-        dot_position_list (list[list[int]]): 
-            A list of `[x, y]` coordinates representing dot positions 
+        pixel_position_list (list[list[int]]): 
+            A list of `[x, y]` coordinates representing pixel positions 
             on the image.
         kernel_size (int): 
             The size of the kernel used for density filtering. The kernel 
-            defines the neighborhood around each dot for checking the 
-            presence of other dots.
+            defines the neighborhood around each pixel for checking the 
+            presence of other pixels.
 
     Returns:
         list[list[int]]: 
@@ -146,11 +146,11 @@ def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int)->list:
     """
     width,height=image.size
     class_array=np.zeros((height,width))
-    for [x,y] in dot_position_list:
+    for [x,y] in pixel_position_list:
         class_array[y][x]=1
-    final_dot_position_list=[]
+    final_pixel_position_list=[]
     d_spacing=[0]+[k for k in range(1,kernel_size+1)]+[-k for k in range(1,1+kernel_size)]
-    for [x,y] in dot_position_list:
+    for [x,y] in pixel_position_list:
         count=0
         for dy in d_spacing:
             for dx in d_spacing:
@@ -161,19 +161,19 @@ def filter_list(image:Image.Image,dot_position_list:list,kernel_size:int)->list:
         
         if count>1+2*kernel_size:
             #print(y,x,count)
-            final_dot_position_list.append([x,y])
-    return final_dot_position_list
+            final_pixel_position_list.append([x,y])
+    return final_pixel_position_list
 
-def get_left_right(image:Image.Image,rows:int,step:int,use_centroids:bool,kernel_size:int)->tuple[list[float], list[float]]:
+def get_left_right(image:Image.Image,n_rows:int,step:int,use_centroids:bool,kernel_size:int)->tuple[list[float], list[float]]:
     """
     Calculates the left and right endpoints of a line that defines the horizon of an image.
 
     Args:
         image (Image.Image): 
             The input image.
-        rows (int): 
+        n_rows (int): 
             The number of rows from the top and bottom of the image used 
-            to define "sky" and "land" classes during dot detection.
+            to define "sky" and "land" classes during pixel detection.
         step (int): 
             The step size for sampling pixels during the classification process.
             We only sample (1/step) of the pixels in the sky_pixels and land_pixels
@@ -192,9 +192,9 @@ def get_left_right(image:Image.Image,rows:int,step:int,use_centroids:bool,kernel
             - `right`: `[x, y]` coordinates for the rightmost point (at x = image width).
     """
     width,height=image.size
-    dot_position_list=get_class_based_dot_list(image,n_rows=rows,step=step,use_centroids=use_centroids)
-    dot_position_list=filter_list(image,dot_position_list,kernel_size=kernel_size)
-    slope, intercept =np.polyfit([dot[0] for dot in dot_position_list], [dot[1] for dot in dot_position_list], 1)
+    pixel_position_list=get_class_based_pixel_list(image,n_rows=n_rows,step=step,use_centroids=use_centroids)
+    pixel_position_list=filter_list(image,pixel_position_list,kernel_size=kernel_size)
+    slope, intercept =np.polyfit([pixel[0] for pixel in pixel_position_list], [pixel[1] for pixel in pixel_position_list], 1)
     left=[0,intercept]
     right=[width, intercept+slope*width]
     return left,right
@@ -215,7 +215,7 @@ if __name__=="__main__":
                 args.limit-=1
                 src_image=Image.open(os.path.join(args.src_dir,f))
                 start=time.time()
-                left,right=get_left_right(src_image,args.rows,args.step,args.use_centroids,args.kernel_size)
+                left,right=get_left_right(src_image,args.n_rows,args.step,args.use_centroids,args.kernel_size)
                 end=time.time()
                 elapsed=end-start
                 line_image=draw_line_on_image(src_image,left,right)
