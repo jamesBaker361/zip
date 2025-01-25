@@ -28,6 +28,7 @@ However, it can also be run with some clargs:
 `--kernel_size`: determines how near other transition pixels need to be when deciding whether to filter out a transition pixel or not
 
 And some boolean flags can be added as well
+
 `--use_centroids` : whether we use the average of the pixels in the land/sky classes or the minimum to determine distance- this flag usually is faster and more reliable
 
 `--verbose` : if true, prints out more
