@@ -59,17 +59,3 @@ def draw_points_on_image(src_image:Image.Image, point_position_list:list[tuple[i
             draw.circle(xy,radius,fill=c)
 
     return final_image
-
-
-
-if __name__=="__main__":
-    src_image=Image.open("input_1/frame0001.jpg")
-    left=[0,408]
-    center=[950, 350]
-    right=[1919,286]
-    points=[]
-    colors=[]
-    for x in range(100):
-        for y in range(100):
-            points.append([x,y])
-            colors.append((255,0,0,128))
