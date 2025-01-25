@@ -27,7 +27,7 @@ def draw_line_on_image(src_image:Image.Image, left:list[int], right:list[int])->
 
     return final_image
 
-def draw_points_on_image(src_image:Image.Image, point_position_list:list[tuple],radius:int=2,color_list:list=None)->Image.Image:
+def draw_points_on_image(src_image:Image.Image, point_position_list:list[tuple[int, int]],radius:int=2,color_list:list[tuple[int, int, int]]=None)->Image.Image:
     """
     Draws points on an image at specified positions, optionally using different colors for each point.
 
